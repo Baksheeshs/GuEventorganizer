@@ -1,0 +1,222 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Poppins', system-ui, sans-serif;
+    @apply bg-white text-dark-900 dark:bg-dark-900 dark:text-white transition-colors duration-300;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gu-500/40 dark:bg-gu-400/40 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gu-500/60 dark:bg-gu-400/60;
+  }
+}
+
+@layer components {
+  /* GU Navy glassmorphism */
+  .glass {
+    @apply bg-white/80 dark:bg-dark-800/80 backdrop-blur-xl border border-dark-200/50 dark:border-dark-700/50;
+  }
+
+  .glass-card {
+    @apply glass rounded-xl shadow-md hover:shadow-lg transition-all duration-300;
+  }
+
+  /* GU Official gradients */
+  .gradient-gu {
+    @apply bg-gradient-to-r from-gu-700 via-gu-600 to-gu-500;
+  }
+
+  .gradient-hero {
+    @apply bg-gradient-to-br from-gu-800 via-gu-700 to-gu-500;
+  }
+
+  .gradient-gold {
+    @apply bg-gradient-to-r from-gold-400 to-gold-500;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-navy {
+    @apply bg-gradient-to-r from-gu-600 to-gu-500 bg-clip-text text-transparent;
+  }
+
+  /* GU Buttons */
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-gu-600 to-gu-500 text-white font-semibold rounded-lg
+    hover:from-gu-700 hover:to-gu-600 transition-all duration-300 shadow-md shadow-gu-500/20
+    hover:shadow-lg hover:shadow-gu-500/30 active:scale-[0.98];
+  }
+
+  .btn-gold {
+    @apply px-6 py-3 bg-gradient-to-r from-gold-400 to-gold-500 text-gu-800 font-semibold rounded-lg
+    hover:from-gold-500 hover:to-gold-600 transition-all duration-300 shadow-md shadow-gold-400/20
+    hover:shadow-lg hover:shadow-gold-400/30 active:scale-[0.98];
+  }
+
+  .btn-red {
+    @apply px-6 py-3 bg-gured-500 text-white font-semibold rounded-lg
+    hover:bg-gured-600 transition-all duration-300 shadow-md shadow-gured-500/20
+    active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-white dark:bg-dark-800 text-gu-600 dark:text-gold-400 font-semibold rounded-lg
+    border-2 border-gu-200 dark:border-gu-700 hover:border-gu-400 dark:hover:border-gold-500
+    transition-all duration-300 hover:shadow-md active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 text-dark-600 dark:text-dark-300 hover:bg-dark-100 dark:hover:bg-dark-800
+    rounded-lg transition-all duration-200;
+  }
+
+  /* GU Form inputs */
+  .input-field {
+    @apply w-full px-4 py-3 bg-white dark:bg-dark-800 border border-dark-200 dark:border-dark-700
+    rounded-lg text-dark-900 dark:text-white placeholder-dark-400 dark:placeholder-dark-500
+    focus:outline-none focus:ring-2 focus:ring-gu-500/50 focus:border-gu-500
+    transition-all duration-200;
+  }
+
+  /* GU Cards */
+  .card {
+    @apply bg-white dark:bg-dark-800 rounded-xl border border-dark-100 dark:border-dark-700
+    shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  .card-gu {
+    @apply bg-white dark:bg-dark-800 rounded-xl border-t-4 border-t-gu-500 border-x border-b border-dark-100 dark:border-dark-700
+    shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  /* GU Sidebar navigation */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-dark-600 dark:text-dark-300
+    hover:bg-gu-50 dark:hover:bg-gu-900/20 hover:text-gu-600 dark:hover:text-gold-400
+    transition-all duration-200 font-medium;
+  }
+
+  .sidebar-link.active {
+    @apply bg-gu-50 dark:bg-gu-900/30 text-gu-600 dark:text-gold-400
+    border-l-4 border-gu-500 dark:border-gold-400;
+  }
+
+  /* GU Badges */
+  .badge {
+    @apply px-3 py-1 text-xs font-semibold rounded-full;
+  }
+
+  .badge-navy {
+    @apply badge bg-gu-100 dark:bg-gu-900/30 text-gu-700 dark:text-gu-300;
+  }
+
+  .badge-blue {
+    @apply badge bg-gu-100 dark:bg-gu-900/30 text-gu-700 dark:text-gu-300;
+  }
+
+  .badge-gold {
+    @apply badge bg-gold-100 dark:bg-gold-900/30 text-gold-700 dark:text-gold-300;
+  }
+
+  .badge-green {
+    @apply badge bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300;
+  }
+
+  .badge-red {
+    @apply badge bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300;
+  }
+
+  .badge-yellow {
+    @apply badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300;
+  }
+
+  .badge-purple {
+    @apply badge bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300;
+  }
+
+  /* GU Section styles */
+  .section-title {
+    @apply text-2xl md:text-3xl font-bold text-gu-700 dark:text-white;
+  }
+
+  .section-subtitle {
+    @apply text-dark-500 dark:text-dark-400 text-lg;
+  }
+
+  .section-divider {
+    @apply w-20 h-1 bg-gradient-to-r from-gold-400 to-gold-500 rounded-full mx-auto mt-3;
+  }
+
+  /* GU Stats */
+  .stat-card {
+    @apply card p-6 flex flex-col gap-2;
+  }
+
+  /* Skeleton loader */
+  .skeleton {
+    @apply animate-pulse bg-dark-200 dark:bg-dark-700 rounded-lg;
+  }
+
+  /* GU Announcement ticker */
+  .ticker-wrapper {
+    @apply overflow-hidden bg-gold-400 text-gu-800;
+  }
+
+  .ticker-content {
+    @apply flex whitespace-nowrap animate-marquee;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Thin scrollbar for sidebar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+  }
+  .dark .scrollbar-thin {
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+}
