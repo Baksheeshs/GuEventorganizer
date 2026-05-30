@@ -6,40 +6,9 @@ const VenueContext = createContext();
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Helper: make authenticated Supabase REST API calls via direct fetch
-async function supabaseFetch(endpoint, options = {}) {
-  const session = localStorage.getItem('gu_auth_session');
-  let token = SUPABASE_ANON_KEY;
-  if (session) {
-    try {
-      const parsed = JSON.parse(session);
-      token = parsed.access_token || token;
-    } catch (e) {
-      console.warn('Could not parse gu_auth_session', e);
-    }
-  }
+// Helper: make authenticated Supabase REST API calls with automatic JWT refresh
+import { supabaseFetch } from '../lib/supabaseFetch';
 
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
-    ...options,
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      ...(options.headers || {})
-    }
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    console.error(`Supabase error on ${endpoint}:`, res.status, errText);
-    throw new Error(`Supabase error ${res.status}: ${errText}`);
-  }
-
-  // Handle 204 No Content
-  if (res.status === 204) return null;
-
-  return res.json();
-}
 
 export function VenueProvider({ children }) {
   const [venues, setVenues] = useState([]);

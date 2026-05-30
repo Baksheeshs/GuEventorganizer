@@ -7,45 +7,9 @@ const RegistrationContext = createContext();
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Helper: make authenticated Supabase REST API calls via direct fetch
-async function supabaseFetch(path, options = {}) {
-  const session = localStorage.getItem('gu_auth_session');
-  let token = SUPABASE_ANON_KEY;
-  if (session) {
-    try { token = JSON.parse(session).access_token || token; } catch {}
-  }
+// Helper: make authenticated Supabase REST API calls via direct fetch (with auto JWT refresh)
+import { supabaseFetch } from '../lib/supabaseFetch';
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Prefer': options.prefer || 'return=representation',
-        ...options.headers,
-      },
-      method: options.method || 'GET',
-      body: options.body ? JSON.stringify(options.body) : undefined,
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || err.details || `HTTP ${response.status}`);
-    }
-
-    const text = await response.text();
-    return text ? JSON.parse(text) : null;
-  } catch (err) {
-    clearTimeout(timeoutId);
-    throw err;
-  }
-}
 
 // Generate a unique 8-character alphanumeric code
 function generateCode() {

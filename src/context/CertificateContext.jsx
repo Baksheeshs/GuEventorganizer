@@ -8,46 +8,9 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const TEMPLATE_TYPES = ['Winner', '1st Runner-up', '2nd Runner-up', 'Participation'];
 
-// Direct fetch helper
-async function supabaseFetch(path, options = {}) {
-  const session = localStorage.getItem('gu_auth_session');
-  let token = SUPABASE_ANON_KEY;
-  if (session) {
-    try { token = JSON.parse(session).access_token || token; } catch {}
-  }
+// Direct fetch helper with automatic JWT refresh
+import { supabaseFetch } from '../lib/supabaseFetch';
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Prefer': options.prefer || 'return=representation',
-        ...options.headers,
-      },
-      method: options.method || 'GET',
-      body: options.body ? JSON.stringify(options.body) : undefined,
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('SUPABASE API ERROR:', response.status, errText);
-      let errObj;
-      try { errObj = JSON.parse(errText); } catch { errObj = { message: errText }; }
-      throw new Error(errObj.message || `HTTP ${response.status}`);
-    }
-    const text = await response.text();
-    return text ? JSON.parse(text) : null;
-  } catch (err) {
-    clearTimeout(timeoutId);
-    throw err;
-  }
-}
 
 export function CertificateProvider({ children }) {
   const { user, isDemo } = useAuth();

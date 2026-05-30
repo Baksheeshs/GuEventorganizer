@@ -5,43 +5,9 @@ const FeedbackContext = createContext();
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Direct fetch helper
-async function supabaseFetch(path, options = {}) {
-  const session = localStorage.getItem('gu_auth_session');
-  let token = SUPABASE_ANON_KEY;
-  if (session) {
-    try { token = JSON.parse(session).access_token || token; } catch {}
-  }
+// Direct fetch helper with automatic JWT refresh
+import { supabaseFetch } from '../lib/supabaseFetch';
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Prefer': options.prefer || 'return=representation',
-        ...options.headers,
-      },
-      method: options.method || 'GET',
-      body: options.body ? JSON.stringify(options.body) : undefined,
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || `HTTP ${response.status}`);
-    }
-    const text = await response.text();
-    return text ? JSON.parse(text) : null;
-  } catch (err) {
-    clearTimeout(timeoutId);
-    throw err;
-  }
-}
 
 export function FeedbackProvider({ children }) {
   // Track which events have feedback enabled (organizer controls this)

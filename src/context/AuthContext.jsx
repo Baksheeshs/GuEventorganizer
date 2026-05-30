@@ -22,25 +22,80 @@ export function AuthProvider({ children }) {
 
   // On mount: check if we have a saved session in localStorage
   useEffect(() => {
-    const savedSession = localStorage.getItem('gu_auth_session');
-    if (savedSession) {
+    const restoreSession = async () => {
+      const savedSession = localStorage.getItem('gu_auth_session');
+      if (!savedSession) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const session = JSON.parse(savedSession);
-        if (session.access_token && session.user_id) {
-          setAuthToken(session.access_token);
-          // Fetch profile using saved token
-          fetchProfileDirect(session.user_id, session.access_token).then(() => {
-            setLoading(false);
-          }).catch(() => {
-            // Token expired, clear it
-            localStorage.removeItem('gu_auth_session');
-            setLoading(false);
-          });
+        if (!session.access_token || !session.user_id) {
+          setLoading(false);
           return;
         }
-      } catch { /* ignore parse errors */ }
-    }
-    setLoading(false);
+
+        setAuthToken(session.access_token);
+
+        try {
+          // Try fetching profile with current token
+          await fetchProfileDirect(session.user_id, session.access_token);
+        } catch {
+          // Token likely expired — try refreshing
+          console.warn('⚠️ Access token expired, attempting refresh...');
+          if (session.refresh_token) {
+            try {
+              const refreshResponse = await fetch(
+                `${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ refresh_token: session.refresh_token }),
+                }
+              );
+
+              if (refreshResponse.ok) {
+                const result = await refreshResponse.json();
+                if (result.access_token) {
+                  const newSession = {
+                    access_token: result.access_token,
+                    refresh_token: result.refresh_token || session.refresh_token,
+                    user_id: result.user?.id || session.user_id,
+                  };
+                  localStorage.setItem('gu_auth_session', JSON.stringify(newSession));
+                  setAuthToken(result.access_token);
+                  console.log('🔄 Token refreshed successfully on mount');
+                  await fetchProfileDirect(newSession.user_id, result.access_token);
+                } else {
+                  throw new Error('No access_token in refresh response');
+                }
+              } else {
+                throw new Error('Refresh request failed');
+              }
+            } catch (refreshErr) {
+              console.error('🔴 Token refresh failed:', refreshErr);
+              localStorage.removeItem('gu_auth_session');
+              setAuthToken(null);
+            }
+          } else {
+            // No refresh token available
+            localStorage.removeItem('gu_auth_session');
+            setAuthToken(null);
+          }
+        }
+      } catch {
+        /* ignore parse errors */
+        localStorage.removeItem('gu_auth_session');
+      }
+
+      setLoading(false);
+    };
+
+    restoreSession();
   }, []);
 
   // Fetch profile using DIRECT fetch (bypasses Supabase JS client completely)
